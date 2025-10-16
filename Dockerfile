@@ -23,6 +23,9 @@ RUN apt-get update && apt-get install -y nodejs npm && rm -rf /var/lib/apt/lists
 
 WORKDIR /app
 
+# Move cli-tool to be in path
+RUN mv ./whep-srt /usr/local/bin/
+
 # Copy package files and install production dependencies
 COPY package*.json ./
 RUN npm ci --only=production
