@@ -34,4 +34,4 @@ COPY --from=builder /app/dist ./dist
 EXPOSE 3001
 
 # Start the server
-CMD ["npm", "start"]
+ENTRYPOINT ["npm", "start"]
