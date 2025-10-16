@@ -41,7 +41,7 @@ To run the latest version of WHEP SRT Gateway:
 
 ```bash
 docker run -d -p 3001:3001 \
-  eyevinntechnology/whep-srt
+  eyevinntechnology/whep-srt-gateway
 ```
 
 Once the container is up and running you can access:
@@ -56,7 +56,6 @@ Once the container is up and running you can access:
 To add a receiver:
 1. Enter a unique **Receiver ID** (e.g., `receiver-1`, or any non-empty string)
    - The GUI suggests sequential IDs like `rx-1`, `rx-2`, etc.
-   - You can use any custom ID via the API
 2. Enter the **WHEP URL** of the WebRTC stream source
 3. Enter the **SRT Output URL** where the stream should be sent
    - Use `srt://0.0.0.0:9000?mode=listener` to listen for incoming SRT connections
