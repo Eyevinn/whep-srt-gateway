@@ -1,5 +1,6 @@
 # WHEP-SRT GATEWAY
-> *Open Source WHEP SRT Gateway*
+
+> _Open Source WHEP SRT Gateway_
 
 A Docker container to receive WebRTC streams via WHEP (WebRTC HTTP Egress Protocol) and output to SRT (Secure Reliable Transport) for reliable streaming distribution.
 
@@ -45,6 +46,7 @@ docker run -d -p 3001:3001 \
 ```
 
 Once the container is up and running you can access:
+
 - API swagger at `http://localhost:3001/api/docs`
 - API at `http://localhost:3001/api/v1/`
 - Web GUI at `http://localhost:3001/ui`
@@ -54,6 +56,7 @@ Once the container is up and running you can access:
 ### Add a Receiver
 
 To add a receiver:
+
 1. Enter a unique **Receiver ID** (e.g., `receiver-1`, or any non-empty string)
    - The GUI suggests sequential IDs like `rx-1`, `rx-2`, etc.
 2. Enter the **WHEP URL** of the WebRTC stream source
@@ -67,6 +70,7 @@ To add a receiver:
 ### Automatic Restart
 
 If a receiver fails, it will automatically restart with exponential backoff:
+
 - First retry: 1 second
 - Second retry: 2 seconds
 - Third retry: 4 seconds
