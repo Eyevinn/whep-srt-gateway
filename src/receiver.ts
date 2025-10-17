@@ -52,7 +52,7 @@ export class Receiver {
     return this.status;
   }
 
-  async start(isAutoRestart: boolean = false) {
+  async start(isAutoRestart = false) {
     logger.info(`[${this.id}]: Starting reception from ${this.whepURL.href}`);
 
     // Reset retry timeout only on manual start (not on automatic restart)
@@ -91,7 +91,9 @@ export class Receiver {
           this.status = RxStatus.FAILED;
           // Log error output at error level
           if (this.errorOutput.length > 0) {
-            logger.error(`[${this.id}]: Error output from whep-srt process:\n${this.errorOutput.join('')}`);
+            logger.error(
+              `[${this.id}]: Error output from whep-srt process:\n${this.errorOutput.join('')}`
+            );
           }
           // Schedule automatic restart with exponential backoff
           this.scheduleRestart();

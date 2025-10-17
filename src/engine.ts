@@ -8,12 +8,7 @@ export class Engine {
     this.receivers = new Map<string, Receiver>();
   }
 
-  async addReceiver(
-    id: string,
-    whepUrl: URL,
-    srtUrl: URL,
-    mockSpawn?: any
-  ): Promise<Receiver> {
+  async addReceiver(id: string, whepUrl: URL, srtUrl: URL, mockSpawn?: any): Promise<Receiver> {
     if (this.receivers.get(id)) {
       throw new Error(`A receiver with id ${id} already exists`);
     }

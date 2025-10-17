@@ -36,7 +36,11 @@ describe('API', () => {
     let body = await response.json();
     expect(body).toEqual([]);
 
-    await engine.addReceiver('test-rx', new URL('http://whep/dummy'), new URL('srt://0.0.0.0:9000?mode=listener'));
+    await engine.addReceiver(
+      'test-rx',
+      new URL('http://whep/dummy'),
+      new URL('srt://0.0.0.0:9000?mode=listener')
+    );
     response = await app.inject({
       method: 'GET',
       url: '/api/v1/rx'
@@ -52,7 +56,6 @@ describe('API', () => {
 
   test('can create a new receiver', async () => {
     const engine = new Engine();
-    const app = api({ engine });
     const mockSpawn = MockSpawn();
     mockSpawn.setDefault((cb: (code: number) => void) => {
       const t = setTimeout(() => {
@@ -64,7 +67,12 @@ describe('API', () => {
     mockSpawn.setSignals({ SIGKILL: true });
 
     // Add receiver with mock spawner first
-    await engine.addReceiver('rx-1', new URL('http://whep/dummy'), new URL('srt://0.0.0.0:9000?mode=listener'), mockSpawn);
+    await engine.addReceiver(
+      'rx-1',
+      new URL('http://whep/dummy'),
+      new URL('srt://0.0.0.0:9000?mode=listener'),
+      mockSpawn
+    );
 
     expect(engine.getAllReceivers().length).toEqual(1);
 
@@ -78,7 +86,11 @@ describe('API', () => {
   test('can return a specific receiver', async () => {
     const engine = new Engine();
     const app = api({ engine });
-    await engine.addReceiver('rx-test', new URL('http://whep/dummy'), new URL('srt://0.0.0.0:9000?mode=listener'));
+    await engine.addReceiver(
+      'rx-test',
+      new URL('http://whep/dummy'),
+      new URL('srt://0.0.0.0:9000?mode=listener')
+    );
     const response = await app.inject({
       method: 'GET',
       url: '/api/v1/rx/rx-test'
@@ -93,7 +105,11 @@ describe('API', () => {
   test('can delete a receiver', async () => {
     const engine = new Engine();
     const app = api({ engine });
-    await engine.addReceiver('rx-delete', new URL('http://whep/dummy'), new URL('srt://0.0.0.0:9000?mode=listener'));
+    await engine.addReceiver(
+      'rx-delete',
+      new URL('http://whep/dummy'),
+      new URL('srt://0.0.0.0:9000?mode=listener')
+    );
     expect(engine.getReceiver('rx-delete')).toBeDefined();
 
     const response = await app.inject({
