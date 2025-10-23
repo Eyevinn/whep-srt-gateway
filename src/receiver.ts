@@ -53,6 +53,12 @@ export class Receiver {
   }
 
   async start(isAutoRestart = false) {
+    // Prevent concurrent start calls
+    if (this.status === RxStatus.RUNNING) {
+      logger.warn(`[${this.id}]: Receiver is already running, ignoring start request`);
+      return;
+    }
+
     logger.info(`[${this.id}]: Starting reception from ${this.whepURL.href}`);
 
     // Reset retry timeout only on manual start (not on automatic restart)
@@ -71,8 +77,10 @@ export class Receiver {
     // Clear error output from previous runs
     this.errorOutput = [];
 
-    this.process = this.processSpawner('whep-srt', opts);
+    // Set status to RUNNING immediately to prevent race condition
     this.status = RxStatus.RUNNING;
+
+    this.process = this.processSpawner('whep-srt', opts);
     logger.info(`[${this.id}]: Receiver is running`);
 
     if (this.process) {
