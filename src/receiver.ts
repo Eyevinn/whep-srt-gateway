@@ -117,7 +117,37 @@ export class Receiver {
     }
 
     if (this.process) {
-      this.process.kill('SIGKILL');
+      // First, try graceful shutdown with SIGINT (Ctrl-C equivalent)
+      logger.info(`[${this.id}]: Sending SIGINT for graceful shutdown`);
+      this.process.kill('SIGINT');
+
+      // Wait up to 2 seconds for graceful shutdown
+      const gracefulTimeout = 2000;
+      const startTime = Date.now();
+
+      await new Promise<void>((resolve) => {
+        const checkInterval = setInterval(() => {
+          const elapsed = Date.now() - startTime;
+
+          // Check if process has exited gracefully
+          if ([RxStatus.STOPPED, RxStatus.FAILED].includes(this.status)) {
+            clearInterval(checkInterval);
+            logger.info(`[${this.id}]: Process stopped gracefully`);
+            resolve();
+            return;
+          }
+
+          // If timeout exceeded, force kill
+          if (elapsed >= gracefulTimeout) {
+            clearInterval(checkInterval);
+            logger.warn(`[${this.id}]: Graceful shutdown timeout, sending SIGKILL`);
+            if (this.process && !this.process.killed) {
+              this.process.kill('SIGKILL');
+            }
+            resolve();
+          }
+        }, 100);
+      });
     } else {
       this.status = RxStatus.STOPPED;
     }

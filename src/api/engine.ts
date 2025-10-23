@@ -128,12 +128,6 @@ const apiEngine: FastifyPluginCallback<ApiEngineOpts> = (fastify, opts, next) =>
           new URL(rxObject.srtUrl)
         );
 
-        // Automatically start the receiver
-        const rx = opts.engine.getReceiver(rxObject.id);
-        if (rx) {
-          await rx.start();
-        }
-
         reply.code(201).send('created');
       } catch (e) {
         console.error(e);
