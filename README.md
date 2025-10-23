@@ -16,7 +16,7 @@ A receiver is a WHEP client and SRT transmitter based on the `whep-srt` [command
 ## Features
 
 - **Automatic Restart**: Failed receivers automatically restart with exponential backoff (1s, 2s, 4s, 8s, etc.)
-- **Auto-Start**: Newly created receivers automatically start
+- **Graceful Shutdown**: Receivers are stopped gracefully with SIGINT before forcing termination
 - **Error Logging**: Detailed error output from whep-srt process logged at error level
 - **Web GUI**: User-friendly interface for managing receivers
 - **REST API**: Full programmatic control with Swagger documentation
@@ -65,7 +65,7 @@ To add a receiver:
    - Use `srt://192.168.1.100:9000?mode=caller` to push to a specific SRT endpoint
 4. Press the **Add** button
 
-**Note**: The receiver will automatically start after being added.
+**Note**: After adding a receiver, you need to manually start it by clicking on the receiver box to toggle it to the running state.
 
 ### Automatic Restart
 
