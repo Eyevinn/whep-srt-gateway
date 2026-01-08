@@ -15,6 +15,7 @@ export class Receiver {
   private retryTimeoutHandle: NodeJS.Timeout | undefined;
   private operationMutex: Promise<void> = Promise.resolve();
   private intentionalStop = false;
+  private disposed = false;
 
   constructor(id: string, whepUrl: URL, srtUrl: URL, processSpawner?: any) {
     this.id = id;
@@ -65,6 +66,12 @@ export class Receiver {
     await prevOperation;
 
     try {
+      // Prevent operations on disposed receiver
+      if (this.disposed) {
+        logger.warn(`[${this.id}]: Receiver is disposed, ignoring start request`);
+        return;
+      }
+
       // Prevent concurrent start calls
       if (this.status === RxStatus.RUNNING) {
         logger.warn(`[${this.id}]: Receiver is already running, ignoring start request`);
@@ -255,5 +262,49 @@ export class Receiver {
       // Restart the receiver (pass true to indicate this is an automatic restart)
       this.start(true);
     }, this.retryTimeoutMs);
+  }
+
+  /**
+   * Dispose of the receiver, stopping any running process and cancelling pending restarts.
+   * After disposal, the receiver cannot be started again.
+   * This method acquires the mutex to ensure no race conditions with start/stop operations.
+   */
+  async dispose(): Promise<void> {
+    // Acquire mutex (synchronous - happens before any await)
+    const prevOperation = this.operationMutex;
+    let releaseLock: () => void;
+    this.operationMutex = new Promise((resolve) => {
+      releaseLock = resolve;
+    });
+
+    await prevOperation;
+
+    try {
+      if (this.disposed) {
+        logger.debug(`[${this.id}]: Receiver already disposed`);
+        return;
+      }
+
+      logger.info(`[${this.id}]: Disposing receiver`);
+
+      // Mark as disposed first to prevent any new operations
+      this.disposed = true;
+
+      // Cancel any pending restart timer
+      if (this.retryTimeoutHandle) {
+        clearTimeout(this.retryTimeoutHandle);
+        this.retryTimeoutHandle = undefined;
+      }
+
+      // Stop any running process
+      if (this.process) {
+        this.intentionalStop = true;
+        await this.killProcess();
+      }
+
+      this.status = RxStatus.STOPPED;
+    } finally {
+      releaseLock!();
+    }
   }
 }

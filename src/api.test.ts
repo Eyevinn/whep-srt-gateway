@@ -208,7 +208,7 @@ describe('API', () => {
     expect(body.status).toEqual(RxStatus.STOPPED);
   });
 
-  test('cannot delete a receiver that is running', async () => {
+  test('can delete a receiver that is running (it stops it first)', async () => {
     const engine = new Engine();
     const app = api({ engine });
     const mockSpawn = MockSpawn();
@@ -219,7 +219,7 @@ describe('API', () => {
       timers.push(t);
       return t;
     });
-    mockSpawn.setSignals({ SIGKILL: true });
+    mockSpawn.setSignals({ SIGINT: true, SIGKILL: true });
     const rx = await engine.addReceiver(
       'rx-active',
       new URL('https://whep/channel/dummy'),
@@ -227,14 +227,16 @@ describe('API', () => {
       mockSpawn
     );
     await rx.start();
+    expect(rx.getStatus()).toEqual('running');
 
+    // Delete should now succeed by stopping the receiver first
     const response = await app.inject({
       method: 'DELETE',
       url: '/api/v1/rx/rx-active'
     });
-    expect(response.statusCode).toEqual(400);
+    expect(response.statusCode).toEqual(204);
 
-    // Clean up
-    await rx.stop({ doAwait: true });
+    // Receiver should be removed from the engine
+    expect(engine.getReceiver('rx-active')).toBeUndefined();
   });
 });
