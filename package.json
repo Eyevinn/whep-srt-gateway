@@ -1,6 +1,6 @@
 {
   "name": "@eyevinn/whep-srt-gateway",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "WHEP SRT Gateway Service",
   "main": "dist/server.js",
   "scripts": {
