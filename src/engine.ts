@@ -36,11 +36,13 @@ export class Engine {
   async removeReceiver(id: string) {
     const rx = this.receivers.get(id);
     if (rx) {
-      if ([RxStatus.STOPPED, RxStatus.FAILED, RxStatus.IDLE].includes(rx.getStatus())) {
-        this.receivers.delete(id);
-      } else {
-        throw new Error(`Failed to remove receiver ${id} as it is active`);
-      }
+      // Dispose the receiver first - this acquires the mutex and ensures:
+      // 1. Any in-progress start/stop operations complete
+      // 2. Any pending restart timers are cancelled
+      // 3. Any running process is stopped
+      // This prevents race conditions where a process could be spawned after deletion
+      await rx.dispose();
+      this.receivers.delete(id);
     }
   }
 
